@@ -1,0 +1,15 @@
+{
+  "name": "elevenlabs-i2v-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Local render worker: pulls jobs from the Vercel app and generates videos via your logged-in Chrome.",
+  "scripts": {
+    "start": "node worker.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.27.0",
+    "dotenv": "^16.4.5",
+    "playwright-core": "^1.62.1"
+  }
+}
