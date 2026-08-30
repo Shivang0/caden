@@ -1,0 +1,51 @@
+# ---- secrets & environment (never commit) ----
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.p12
+
+# ---- dependencies ----
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# ---- build output ----
+.next/
+**/.next/
+out/
+dist/
+build/
+**/dist/
+**/build/
+
+# ---- vercel ----
+.vercel
+**/.vercel
+
+# ---- python (modal worker) ----
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# ---- local tooling & session artifacts ----
+.claude/
+.playwright-mcp/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ---- os / editor ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

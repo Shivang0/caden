@@ -1,0 +1,15 @@
+{
+  "functions": {
+    "api/generate.js": {
+      "maxDuration": 300
+    },
+    "api/video.js": {
+      "maxDuration": 300
+    }
+  },
+  "rewrites": [
+    { "source": "/portal", "destination": "https://cadenportal.vercel.app/portal" },
+    { "source": "/portal/", "destination": "https://cadenportal.vercel.app/portal" },
+    { "source": "/portal/:path*", "destination": "https://cadenportal.vercel.app/portal/:path*" }
+  ]
+}

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" fill="none">
+  <style>
+    /* grid lines: solid, then wipe off and load back in along their own path (12s = ~30% faster) */
+    .ln { stroke-dasharray: 1 1; animation: wipe 12s linear infinite; }
+    @keyframes wipe {
+      0%   { stroke-dashoffset: 0; }
+      60%  { stroke-dashoffset: 0; }
+      76%  { stroke-dashoffset: -1; }
+      80%  { stroke-dashoffset: -1; }
+      100% { stroke-dashoffset: -2; }
+    }
+
+    /* crosses: hidden, drawn in when the 1st line reaches them, erased when the 2nd line reaches them */
+    .cross {
+      stroke-dasharray: 1 1;
+      stroke-dashoffset: 1;
+      animation-duration: 12s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+    .c1 { animation-name: c1; }
+    .c2 { animation-name: c2; }
+    .c3 { animation-name: c3; }
+    .c4 { animation-name: c4; }
+    .c5 { animation-name: c5; }
+    .c6 { animation-name: c6; }
+
+    /* each: hidden -&gt; draw in at 1st hit -&gt; hold -&gt; erase at 2nd hit -&gt; hidden */
+    @keyframes c1 { 0%,44.3%{stroke-dashoffset:1} 46.8%{stroke-dashoffset:0} 77.1%{stroke-dashoffset:0} 79.6%{stroke-dashoffset:1} 100%{stroke-dashoffset:1} }
+    @keyframes c2 { 0%,74%{stroke-dashoffset:1}   76.5%{stroke-dashoffset:0} 83.3%{stroke-dashoffset:0} 85.8%{stroke-dashoffset:1} 100%{stroke-dashoffset:1} }
+    @keyframes c3 { 0%,23.3%{stroke-dashoffset:1} 25.8%{stroke-dashoffset:0} 65.7%{stroke-dashoffset:0} 68.2%{stroke-dashoffset:1} 100%{stroke-dashoffset:1} }
+    @keyframes c4 { 0%,37.1%{stroke-dashoffset:1} 39.6%{stroke-dashoffset:0} 56.8%{stroke-dashoffset:0} 59.3%{stroke-dashoffset:1} 100%{stroke-dashoffset:1} }
+    @keyframes c5 { 0%,34%{stroke-dashoffset:1}   36.5%{stroke-dashoffset:0} 75.9%{stroke-dashoffset:0} 78.4%{stroke-dashoffset:1} 100%{stroke-dashoffset:1} }
+    @keyframes c6 { 0%,15.9%{stroke-dashoffset:1} 18.4%{stroke-dashoffset:0} 25.7%{stroke-dashoffset:0} 28.2%{stroke-dashoffset:1} 100%{stroke-dashoffset:1} }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ln, .cross { animation: none; stroke-dashoffset: 0; }
+    }
+  </style>
+
+  <g clip-path="url(#clip0_6002_1376)">
+    <mask id="path-1-inside-1_6002_1376" fill="white">
+      <path d="M0 0H1440V900H0V0Z"></path>
+    </mask>
+
+    <!-- top divider line -->
+    <path class="ln" pathLength="1" style="animation-delay:-4.8s" d="M1440 62.5L0 62.5" stroke="#343434"></path>
+
+    <g clip-path="url(#clip1_6002_1376)">
+      <path class="ln" pathLength="1" style="animation-delay:0s" d="M1350 -113L132.139 1106.18" stroke="#343434" stroke-width="1.3561"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-9.6s" d="M132 -113L1349.86 1106.18" stroke="#343434" stroke-width="1.3561"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-6s" d="M861 376L621.378 376L621.378 616.939L861 616.939Z" stroke="#343434" stroke-width="1.3561"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-8.4s" d="M-481.789 759.851L1940.77 759.851" stroke="#343434" stroke-width="1.34991"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-1.2s" d="M-481.789 247.691L1940.77 247.691" stroke="#343434" stroke-width="1.34991"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-7.2s" d="M228.429 1111.38L228.429 -118.326" stroke="#343434" stroke-width="1.34991"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-2.4s" d="M1132 1111.38L1132 -118.326" stroke="#343434" stroke-width="1.34991"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-10.8s" d="M217.89 247.538L238.391 247.538" stroke="#343434" stroke-width="1.90103"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-10.8s" d="M228.007 257.659L228.007 237.159" stroke="#343434" stroke-width="1.90103"></path>
+      <path class="ln" pathLength="1" style="animation-delay:-3.6s" d="M223.914 249.007C45.29 249.007 -301.412 431.357 -301.412 761.167" stroke="#343434" stroke-width="1.31661"></path>
+
+      <!-- tiles stay static; crosses are driven by the lines that pass through them -->
+      <rect width="26" height="26" transform="translate(1119 235)" fill="#1A1A1A"></rect>
+      <path class="cross c2" pathLength="1" d="M1125 248.091L1139.5 248.091" stroke="#5E5E5D"></path>
+      <path class="cross c2" pathLength="1" d="M1132.16 255.25L1132.16 240.75" stroke="#5E5E5D"></path>
+
+      <rect width="26" height="26" transform="translate(1119 49)" fill="#1A1A1A"></rect>
+      <path class="cross c1" pathLength="1" d="M1125 62.0913L1139.5 62.0913" stroke="#5E5E5D"></path>
+      <path class="cross c1" pathLength="1" d="M1132.16 69.25L1132.16 54.75" stroke="#5E5E5D"></path>
+
+      <rect width="26" height="26" transform="translate(215 49)" fill="#1A1A1A"></rect>
+      <path class="cross c4" pathLength="1" d="M221 62.0913L235.5 62.0913" stroke="#5E5E5D"></path>
+      <path class="cross c4" pathLength="1" d="M228.156 69.25L228.156 54.75" stroke="#5E5E5D"></path>
+
+      <rect width="26" height="26" transform="translate(215 236)" fill="#1A1A1A"></rect>
+      <path class="cross c5" pathLength="1" d="M221 249.091L235.5 249.091" stroke="#5E5E5D"></path>
+      <path class="cross c5" pathLength="1" d="M228.156 256.25L228.156 241.75" stroke="#5E5E5D"></path>
+    </g>
+
+    <rect width="26" height="26" transform="translate(215 748)" fill="#1A1A1A"></rect>
+    <path class="cross c6" pathLength="1" d="M221 761.091L235.5 761.091" stroke="#5E5E5D"></path>
+    <path class="cross c6" pathLength="1" d="M228.156 768.25L228.156 753.75" stroke="#5E5E5D"></path>
+
+    <rect width="26" height="26" transform="translate(1119 748)" fill="#1A1A1A"></rect>
+    <path class="cross c3" pathLength="1" d="M1125 761.091L1139.5 761.091" stroke="#5E5E5D"></path>
+    <path class="cross c3" pathLength="1" d="M1132.16 768.25L1132.16 753.75" stroke="#5E5E5D"></path>
+  </g>
+
+  <!-- top frame border (left static) -->
+  <path d="M0 0V1H1440V0V-1H0V0Z" fill="#343434" mask="url(#path-1-inside-1_6002_1376)"></path>
+
+  <defs>
+    <clipPath id="clip0_6002_1376">
+      <path d="M0 0H1440V900H0V0Z" fill="white"></path>
+    </clipPath>
+    <clipPath id="clip1_6002_1376">
+      <rect width="1440" height="900" fill="white" transform="matrix(-1 0 0 1 1440 0)"></rect>
+    </clipPath>
+  </defs>
+</svg>

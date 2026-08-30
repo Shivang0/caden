@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>caden | Live demo</title>
+  <meta name="description" content="Paste a repo. Watch the agents turn shipped work into founder comms.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f9fe2e'/%3E%3Crect x='9' y='9' width='14' height='14' fill='%231a1a1a'/%3E%3C/svg%3E">
+  <style>
+    @font-face {
+      font-family: "TT Interphases";
+      src: url("assets/6a3ec6f98500b066f538a054_TT_Interphases_Pro_Trial_Regular.woff2") format("woff2");
+      font-weight: 400; font-display: swap;
+    }
+    @font-face {
+      font-family: "TT Interphases";
+      src: url("assets/6a42d298b0b7495d7da5dbf1_TT_Interphases_Pro_Trial_Medium.woff2") format("woff2");
+      font-weight: 500; font-display: swap;
+    }
+    @font-face {
+      font-family: "TT Interphases";
+      src: url("assets/6a3ec6f9e78b60ecbc499c90_TT_Interphases_Pro_Trial_Bold.woff2") format("woff2");
+      font-weight: 700; font-display: swap;
+    }
+    @font-face {
+      font-family: "TT Mono";
+      src: url("assets/6a3ec7268500b066f538ac02_TT_Interphases_Pro_Mono_Variable_Trial_Upright.woff2") format("woff2");
+      font-weight: 100 900; font-display: swap;
+    }
+    :root {
+      --bg: #1a1a1a; --bg-alt: #161616; --card: #212121;
+      --border: #363636; --border-soft: #2a2a2a;
+      --ink: #f1f1f1; --dim: #8f8f8f;
+      --yellow: #f9fe2e; --yellow-warm: #ffe042;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg) url("assets/6a45168c7316606c592707d9_grid.svg") center top / cover no-repeat fixed;
+      color: var(--ink);
+      font-family: "TT Interphases", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .mono { font-family: "TT Mono", monospace; letter-spacing: 0.08em; }
+    a { color: inherit; text-decoration: none; }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1400px; margin: 14px auto 0; padding: 14px 26px;
+      background: rgba(26,26,26,.75); border: 1px solid var(--border-soft);
+      border-radius: 100px; backdrop-filter: blur(12px);
+    }
+    .logo { font-weight: 700; font-size: 24px; letter-spacing: -0.02em; display: inline-flex; align-items: baseline; }
+    .cursor { width: .5em; height: .85em; background: var(--yellow); display: inline-block; margin-left: 3px; transform: translateY(.08em); animation: blink 1.1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .nav a.back { font-size: 14px; color: var(--dim); }
+    .nav a.back:hover { color: var(--ink); }
+
+    .wrap { max-width: 1400px; margin: 0 auto; padding: clamp(24px, 4vw, 56px) clamp(16px, 3vw, 40px) 80px; }
+    .label { font-size: 12px; color: var(--dim); text-transform: uppercase; margin-bottom: 10px; }
+    h1 { font-size: clamp(34px, 5vw, 64px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
+    .sub { color: #bdbdbd; margin-top: 14px; max-width: 560px; font-size: 17px; }
+
+    .form-card {
+      margin-top: 34px; background: rgba(22,22,22,.88); border: 1px solid var(--border);
+      border-radius: 18px; padding: clamp(18px, 2.5vw, 30px);
+      display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;
+    }
+    .form-card .full { grid-column: 1 / -1; }
+    .field label { display: block; font-size: 11px; color: var(--dim); letter-spacing: .12em; margin-bottom: 8px; font-family: "TT Mono", monospace; text-transform: uppercase; }
+    .field input, .field textarea {
+      width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--ink);
+      font-family: inherit; font-size: 15px; padding: 13px 15px; border-radius: 12px; outline: none;
+    }
+    .field textarea { min-height: 74px; resize: vertical; font-family: "TT Mono", monospace; font-size: 13px; }
+    .field input:focus, .field textarea:focus { border-color: var(--yellow); }
+    .field input::placeholder, .field textarea::placeholder { color: #6d6d6d; }
+    .run {
+      grid-column: 1 / -1;
+      background: var(--yellow); color: #161616; border: none; cursor: pointer;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      padding: 15px; border-radius: 100px; transition: transform .2s, background .2s;
+    }
+    .run:hover { background: var(--yellow-warm); transform: scale(1.01); }
+    .run[disabled] { opacity: .55; cursor: wait; transform: none; }
+
+    .rail { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+    .chip {
+      font-family: "TT Mono", monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      padding: 8px 14px; border-radius: 100px; border: 1px solid var(--border-soft); color: var(--dim);
+      transition: all .3s;
+    }
+    .chip.run-state { border-color: var(--yellow); color: var(--yellow); }
+    .chip.run-state::after { content: "..."; }
+    .chip.done { border-color: var(--border); color: var(--ink); background: var(--bg-alt); }
+    .chip.done::before { content: "✓ "; color: var(--yellow); }
+
+    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px; }
+    .panel {
+      background: rgba(22,22,22,.92); border: 1px solid var(--border-soft); border-radius: 16px;
+      display: none; flex-direction: column; min-height: 180px; overflow: hidden;
+    }
+    .panel.visible { display: flex; }
+    .panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; border-bottom: 1px solid var(--border-soft);
+    }
+    .panel-head .t { font-family: "TT Mono", monospace; font-size: 11px; letter-spacing: .12em; color: var(--dim); text-transform: uppercase; }
+    .copy-btn {
+      background: none; border: 1px solid var(--border); color: var(--dim); cursor: pointer;
+      font-family: "TT Mono", monospace; font-size: 10px; letter-spacing: .1em;
+      padding: 5px 12px; border-radius: 100px; text-transform: uppercase;
+    }
+    .copy-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+    .panel-body {
+      padding: 18px; white-space: pre-wrap; overflow-y: auto; max-height: 480px;
+      font-size: 14px; color: #d9d9d9; line-height: 1.6;
+    }
+    .panel.summary-panel { grid-column: 1 / -1; }
+    .panel.summary-panel .panel-body { font-family: "TT Mono", monospace; font-size: 12.5px; color: #b9b9b9; max-height: 300px; }
+    .caret { display: inline-block; width: 7px; height: 14px; background: var(--yellow); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+    .status-line { margin-top: 18px; font-family: "TT Mono", monospace; font-size: 12px; color: var(--dim); letter-spacing: .06em; min-height: 18px; }
+    .status-line.err { color: #ff7a6e; }
+
+    @media (max-width: 860px) {
+      .form-card { grid-template-columns: 1fr; }
+      .panels { grid-template-columns: 1fr; }
+    }
+  </style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <a class="logo" href="/">caden<span class="cursor"></span></a>
+    <span style="display:flex; gap:18px; align-items:center;">
+      <a class="back" href="/portal/login" id="navLogin">Log in</a>
+      <a class="back" href="/portal/signup" id="navSignup">Sign up</a>
+      <a class="back" href="/portal/account" id="navUser" style="display:none; color:var(--yellow);"></a>
+      <a class="back" href="#" id="navLogout" style="display:none;">Log out</a>
+      <a class="back" href="/">back to site</a>
+    </span>
+  </nav>
+
+  <a href="/portal/connections" id="connectRail" title="Connect GitHub, Linear, Notion, Figma, Vercel, Stripe"
+     style="position:fixed; left:0; top:50%; transform:translateY(-50%); z-index:60;
+            writing-mode:vertical-rl; text-orientation:mixed; rotate:180deg;
+            background:var(--yellow); color:#161616; font-family:'TT Mono',monospace;
+            font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700;
+            padding:18px 9px; border-radius:0 10px 10px 0;">Connect accounts</a>
+
+  <div class="wrap">
+    <p class="label mono">( LIVE DEMO · THE LOOP, RUNNING )</p>
+    <h1>Paste a repo. Watch the agents work.</h1>
+    <p class="sub">caden pulls the merged PRs, commits and releases, maps the work, then three writers draft your investor update, your posts, and your changelog. All live, all grounded in real diffs.</p>
+
+    <div id="autopilot" class="mono" style="display:none; margin:0 0 16px; border:1px solid var(--border-soft); background:var(--card); padding:12px 16px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); line-height:2;"></div>
+
+    <form class="form-card" id="runForm">
+      <div class="field full">
+        <label for="repo">GitHub repo or org (autofills from your GitHub connection)</label>
+        <input id="repo" placeholder="vercel/next.js, your-org, or a github.com URL" required autocomplete="off">
+      </div>
+      <div class="field full">
+        <label for="metrics">Your metrics, optional (autofills live from your Stripe connection)</label>
+        <textarea id="metrics" placeholder="MRR: 4200 USD (up 18% MoM)&#10;Active users: 312&#10;Runway: 14 months"></textarea>
+      </div>
+      <div class="field" style="grid-column: span 2;">
+        <label for="from">From</label>
+        <input id="from" type="date" required>
+      </div>
+      <div class="field">
+        <label for="to">To</label>
+        <input id="to" type="date" required>
+      </div>
+      <div class="field full">
+        <label for="founder">Your name, optional (auto from LinkedIn when connected: voice match + photo search)</label>
+        <input id="founder" placeholder="Ada Lovelace, or your LinkedIn URL" autocomplete="off">
+      </div>
+      <div class="field" style="grid-column: span 2;">
+        <label for="photo">Or upload your photo (beats the search, used as the first frame)</label>
+        <input id="photo" type="file" accept="image/*">
+      </div>
+      <div class="field">
+        <label for="voiceSample">Your voice, optional: a 30 second sample of you talking, then Clone</label>
+        <span style="display:flex; gap:8px; align-items:center;">
+          <input id="voiceSample" type="file" accept="audio/*" style="flex:1; min-width:0;">
+          <button type="button" id="recBtn" class="copy-btn">Record</button>
+          <button type="button" id="cloneBtn" class="copy-btn">Clone</button>
+        </span>
+        <p id="voiceState" class="mono" style="font-size:10px; color:var(--dim); margin-top:4px;">Your own voice only. Record 30 seconds or upload a file, then Clone.</p>
+      </div>
+      <button class="run" type="submit" id="runBtn">Run the agents</button>
+    </form>
+
+    <div class="rail" id="rail" style="display:none">
+      <span class="chip" data-stage="fetch">Pulling the work</span>
+      <span class="chip" data-stage="voice">Voice profiler</span>
+      <span class="chip" data-stage="summary">Summarizer agent</span>
+      <span class="chip" data-stage="investor_update">Investor update writer</span>
+      <span class="chip" data-stage="posts">Build in public writer</span>
+      <span class="chip" data-stage="changelog">Changelog writer</span>
+    </div>
+    <p class="status-line" id="statusLine"></p>
+
+    <div class="panels">
+      <div class="panel summary-panel" data-panel="summary">
+        <div class="panel-head"><span class="t">( AGENT WORK MAP )</span><button class="copy-btn" type="button">Copy</button></div>
+        <div class="panel-body"></div>
+      </div>
+      <div class="panel" data-panel="investor_update">
+        <div class="panel-head"><span class="t">( INVESTOR UPDATE )</span><span><button class="copy-btn listen-btn" type="button" id="listenBtn">Listen</button> <button class="copy-btn" type="button">Copy</button></span></div>
+        <div class="panel-body"></div>
+      </div>
+      <div class="panel" data-panel="posts">
+        <div class="panel-head"><span class="t">( BUILD IN PUBLIC POSTS )</span><span><button class="copy-btn" type="button" id="liBtn">Post to LinkedIn</button> <button class="copy-btn" type="button" id="videoBtn">Make video</button> <button class="copy-btn" type="button">Copy</button></span></div>
+        <div class="panel-body"></div>
+      </div>
+      <div class="panel" data-panel="changelog">
+        <div class="panel-head"><span class="t">( CHANGELOG )</span><button class="copy-btn" type="button">Copy</button></div>
+        <div class="panel-body"></div>
+      </div>
+    </div>
+
+    <div id="videoWrap" style="display:none; margin-top:18px; border:1px solid var(--border-soft); background:var(--card); padding:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span class="mono" style="font-size:11px; letter-spacing:.12em; color:var(--dim); text-transform:uppercase;">( UPDATE TEASER, VOICE BY ELEVENLABS )</span>
+        <a id="videoDl" class="copy-btn" style="text-decoration:none;" download="caden-update-teaser.mp4">Download</a>
+      </div>
+      <video id="videoEl" controls playsinline style="width:100%; display:block; background:#000;"></video>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var form = document.getElementById("runForm");
+      var btn = document.getElementById("runBtn");
+      var rail = document.getElementById("rail");
+      var statusLine = document.getElementById("statusLine");
+
+      // default range: last 7 days (a founder update covers the week)
+      var today = new Date();
+      var prior = new Date(today.getTime() - 7 * 864e5);
+      document.getElementById("to").value = today.toISOString().slice(0, 10);
+      document.getElementById("from").value = prior.toISOString().slice(0, 10);
+
+      // Autopilot: everything derivable from the portal connections gets
+      // prefilled, so a connected founder just hits Run. Fields stay editable
+      // as overrides. The banner always says what state autopilot is in, so
+      // it is never invisible: off (signed out), idle (nothing connected),
+      // or on (lists exactly what it pulled).
+      // Session-aware nav: the static Log in / Sign up links swap to the
+      // signed-in founder's name + Log out once the portal session is seen.
+      fetch("/portal/api/auth/session", { credentials: "same-origin" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          var u = d && d.user;
+          if (!u) return;
+          document.getElementById("navLogin").style.display = "none";
+          document.getElementById("navSignup").style.display = "none";
+          var nu = document.getElementById("navUser");
+          nu.textContent = u.name || u.email;
+          nu.style.display = "";
+          var nl = document.getElementById("navLogout");
+          nl.style.display = "";
+          nl.addEventListener("click", function (e) {
+            e.preventDefault();
+            fetch("/portal/api/auth/logout", { method: "POST", credentials: "same-origin" })
+              .then(function () { location.reload(); })
+              .catch(function () { location.reload(); });
+          });
+        })
+        .catch(function () {});
+
+      var auto = { founder: "", voiceId: "" };
+      var apEl = document.getElementById("autopilot");
+      function apShow(html) { apEl.innerHTML = html; apEl.style.display = "block"; }
+      var AP_TAG = '<span style="color:#161616; background:var(--yellow); padding:2px 8px; font-weight:700; margin-right:10px;">AUTOPILOT</span>';
+      var AP_LINK = ' <a href="/portal/connections" style="color:var(--yellow); text-decoration:underline;">CONNECT ACCOUNTS</a>';
+      fetch("/portal/api/autopilot", { credentials: "same-origin" })
+        .then(function (r) {
+          if (r.status === 401) {
+            apShow(AP_TAG + 'OFF. <a href="/portal/login" style="color:var(--yellow); text-decoration:underline;">LOG IN</a> AND CONNECT YOUR TOOLS, THIS FORM FILLS ITSELF.');
+            return null;
+          }
+          return r.ok ? r.json() : null;
+        })
+        .then(function (d) {
+          if (!d) return;
+          var notes = [];
+          if (d.range) {
+            document.getElementById("from").value = d.range.from;
+            document.getElementById("to").value = d.range.to;
+          }
+          var repoEl = document.getElementById("repo");
+          if (d.github && !repoEl.value) {
+            if (d.github.orgs && d.github.orgs.length) {
+              repoEl.value = d.github.orgs[0];
+              notes.push("REPOS: ALL OF " + d.github.orgs[0].toUpperCase());
+            } else if (d.github.repos && d.github.repos.length) {
+              repoEl.value = d.github.repos[0].fullName;
+              notes.push("REPO: " + d.github.repos[0].fullName.toUpperCase());
+            } else {
+              notes.push("GITHUB: CONNECTED, NO PUSHES IN RANGE");
+            }
+          }
+          var metricsEl = document.getElementById("metrics");
+          if (d.metrics && d.metrics.text && !metricsEl.value) {
+            metricsEl.value = d.metrics.text;
+            notes.push("METRICS: LIVE FROM STRIPE");
+          }
+          if (d.founder && d.founder.name) {
+            auto.founder = d.founder.name;
+            var f = document.getElementById("founder");
+            if (!f.value) f.placeholder = d.founder.name + " (auto, from your " + d.founder.source + ")";
+            notes.push("VOICE: " + d.founder.name.toUpperCase() + (d.founder.source === "linkedin" ? " (LINKEDIN)" : ""));
+          }
+          if (d.voiceId) {
+            auto.voiceId = d.voiceId;
+            notes.push("CLONED VOICE: READY");
+            var vs = document.getElementById("voiceState");
+            if (vs && !localStorage.getItem("cadenVoiceId")) {
+              vs.textContent = "PROFILE VOICE READY ( " + d.voiceId.slice(0, 6) + "... ). VIDEOS USE YOUR VOICE.";
+            }
+          }
+          if (!d.github && !d.metrics) {
+            apShow(AP_TAG + 'IDLE. SIGNED IN, BUT GITHUB AND STRIPE ARE NOT CONNECTED YET.' + AP_LINK);
+          } else {
+            apShow(AP_TAG + 'ON. ' + notes.join(" &nbsp;·&nbsp; ") + '. JUST HIT RUN.');
+          }
+        })
+        .catch(function () {});
+
+      function chip(stage) { return rail.querySelector('[data-stage="' + stage + '"]'); }
+      function panel(name) { return document.querySelector('[data-panel="' + name + '"]'); }
+      function body(name) { return panel(name).querySelector(".panel-body"); }
+
+      document.querySelectorAll(".copy-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var text = b.closest(".panel").querySelector(".panel-body").textContent;
+          navigator.clipboard.writeText(text).then(function () {
+            b.textContent = "Copied";
+            setTimeout(function () { b.textContent = "Copy"; }, 1500);
+          });
+        });
+      });
+
+      function handleEvent(ev) {
+        if (ev.type === "stage") {
+          var c = chip(ev.stage);
+          if (c) {
+            c.classList.remove("run-state", "done");
+            c.classList.add(ev.status === "done" ? "done" : "run-state");
+          }
+          if (ev.stage === "fetch" && ev.status === "done" && ev.detail) {
+            statusLine.textContent = "FOUND: " + ev.detail.toUpperCase();
+          }
+          if (ev.status === "start" && ev.stage !== "fetch") {
+            panel(ev.stage === "summary" ? "summary" : ev.stage).classList.add("visible");
+          }
+        } else if (ev.type === "delta") {
+          var target = body(ev.artifact);
+          var caret = target.querySelector(".caret");
+          if (caret) caret.remove();
+          target.appendChild(document.createTextNode(ev.text));
+          var c2 = document.createElement("span");
+          c2.className = "caret";
+          target.appendChild(c2);
+          target.scrollTop = target.scrollHeight;
+        } else if (ev.type === "done") {
+          document.querySelectorAll(".caret").forEach(function (c) { c.remove(); });
+          statusLine.textContent = "DONE. EDIT WHAT YOU WANT. PUBLISH WHERE YOU ALREADY PUBLISH.";
+          btn.disabled = false;
+        } else if (ev.type === "error") {
+          document.querySelectorAll(".caret").forEach(function (c) { c.remove(); });
+          statusLine.textContent = "ERROR: " + ev.message.toUpperCase();
+          statusLine.classList.add("err");
+          btn.disabled = false;
+        }
+      }
+
+      var listenBtn = document.getElementById("listenBtn");
+      var audioEl = null;
+      listenBtn.addEventListener("click", async function () {
+        var text = body("investor_update").textContent.trim();
+        if (!text) { statusLine.textContent = "RUN THE AGENTS FIRST."; return; }
+        if (audioEl && !audioEl.paused) { audioEl.pause(); listenBtn.textContent = "Listen"; return; }
+        listenBtn.textContent = "Generating...";
+        listenBtn.disabled = true;
+        try {
+          var vr = await fetchRetry("/api/voice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text, voiceId: myVoiceId() }),
+          });
+          if (!vr.ok) {
+            var err = {};
+            try { err = await vr.json(); } catch (e2) {}
+            throw new Error(err.error || "Voice generation failed (" + vr.status + ")");
+          }
+          var blob = await vr.blob();
+          audioEl = new Audio(URL.createObjectURL(blob));
+          audioEl.onended = function () { listenBtn.textContent = "Listen"; };
+          audioEl.play();
+          listenBtn.textContent = "Pause";
+        } catch (err) {
+          statusLine.textContent = "VOICE: " + (err.message || "FAILED").toUpperCase();
+          statusLine.classList.add("err");
+        } finally {
+          listenBtn.disabled = false;
+          if (listenBtn.textContent === "Generating...") listenBtn.textContent = "Listen";
+        }
+      });
+
+      function teaserScript(text) {
+        var t = text
+          .replace(/LINKEDIN POST|X THREAD/g, " ")
+          .replace(/\(#\d+[^)]*\)/g, "")
+          .replace(/[#*_`>]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        var sentences = t.match(/[^.!?]+[.!?]/g) || [t];
+        var out = "";
+        for (var i = 0; i < sentences.length; i++) {
+          if ((out + sentences[i]).length > 320) break;
+          out += sentences[i].trim() + " ";
+        }
+        return out.trim() || t.slice(0, 300);
+      }
+
+      function showTeaser(url, ext) {
+        var wrap = document.getElementById("videoWrap");
+        var vid = document.getElementById("videoEl");
+        var dl = document.getElementById("videoDl");
+        vid.style.display = "block";
+        vid.src = url;
+        dl.href = url;
+        dl.setAttribute("download", "caden-update-teaser." + ext);
+        wrap.style.display = "block";
+        wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      // Renders the teaser in the browser: caden-branded canvas animation with
+      // the ElevenLabs voiceover, captured by MediaRecorder. Used when the
+      // ElevenLabs plan blocks the server-side Veo video API.
+      async function renderTeaserInBrowser(text) {
+        var script = teaserScript(text);
+        var vr = await fetchRetry("/api/voice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: script, voiceId: myVoiceId() }),
+        });
+        if (!vr.ok) {
+          var e1 = {};
+          try { e1 = await vr.json(); } catch (e2) {}
+          throw new Error(e1.error || "Voiceover failed (" + vr.status + ")");
+        }
+        var audioData = await vr.arrayBuffer();
+        var actx = new (window.AudioContext || window.webkitAudioContext)();
+        var buffer = await actx.decodeAudioData(audioData);
+
+        var canvas = document.createElement("canvas");
+        canvas.width = 1280; canvas.height = 720;
+        canvas.style.cssText = "width:100%; display:block; background:#000;";
+        var wrap = document.getElementById("videoWrap");
+        var vid = document.getElementById("videoEl");
+        vid.style.display = "none";
+        wrap.style.display = "block";
+        wrap.insertBefore(canvas, vid);
+        wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        var ctx = canvas.getContext("2d");
+        var source = actx.createBufferSource();
+        source.buffer = buffer;
+        var analyser = actx.createAnalyser();
+        analyser.fftSize = 128;
+        var dest = actx.createMediaStreamDestination();
+        source.connect(analyser);
+        analyser.connect(dest);
+        analyser.connect(actx.destination);
+
+        var stream = canvas.captureStream(30);
+        dest.stream.getAudioTracks().forEach(function (t) { stream.addTrack(t); });
+        var mime = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"]
+          .filter(function (m) { return window.MediaRecorder && MediaRecorder.isTypeSupported(m); })[0];
+        if (!mime) throw new Error("This browser cannot record video.");
+        var ext = mime.indexOf("mp4") !== -1 ? "mp4" : "webm";
+        var rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 5000000 });
+        var chunks = [];
+        rec.ondataavailable = function (e) { if (e.data.size) chunks.push(e.data); };
+
+        var words = script.split(" ");
+        var freq = new Uint8Array(analyser.frequencyBinCount);
+        var repoName = (document.getElementById("repo").value || "").replace(/^.*github\.com\//, "").trim();
+        var t0 = null;
+        var running = true;
+
+        function wrapWords(size) {
+          ctx.font = "500 " + size + "px 'TT Interphases', sans-serif";
+          var lines = [], line = [];
+          for (var i = 0; i < words.length; i++) {
+            var probe = line.concat(words[i]).join(" ");
+            if (ctx.measureText(probe).width > 1120 && line.length) { lines.push(line); line = [words[i]]; }
+            else line.push(words[i]);
+          }
+          if (line.length) lines.push(line);
+          return lines;
+        }
+        var lines = wrapWords(34);
+
+        function draw(now) {
+          if (!running) return;
+          if (t0 === null) t0 = now;
+          var elapsed = (now - t0) / 1000;
+          var progress = Math.min(elapsed / buffer.duration, 1);
+          var spoken = Math.floor(progress * words.length);
+
+          ctx.fillStyle = "#161616";
+          ctx.fillRect(0, 0, 1280, 720);
+          ctx.strokeStyle = "rgba(255,255,255,0.035)";
+          ctx.lineWidth = 1;
+          for (var gx = 0; gx <= 1280; gx += 64) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, 720); ctx.stroke(); }
+
+          ctx.fillStyle = "#f9fe2e";
+          ctx.fillRect(64, 58, 16, 16);
+          ctx.fillStyle = "#f1f1f1";
+          ctx.font = "700 30px 'TT Interphases', sans-serif";
+          ctx.fillText("caden", 92, 74);
+          ctx.font = "12px 'TT Mono', monospace";
+          ctx.fillStyle = "#8f8f8f";
+          ctx.textAlign = "right";
+          ctx.fillText("( BUILD LOG" + (repoName ? ": " + repoName.toUpperCase() : "") + " )", 1216, 72);
+          ctx.textAlign = "left";
+
+          var y = 180, idx = 0;
+          ctx.font = "500 34px 'TT Interphases', sans-serif";
+          for (var li = 0; li < lines.length && y < 560; li++) {
+            var x = 64;
+            for (var wi = 0; wi < lines[li].length; wi++) {
+              var word = lines[li][wi];
+              ctx.fillStyle = idx < spoken ? "#f1f1f1" : (idx === spoken ? "#f9fe2e" : "rgba(241,241,241,0.22)");
+              ctx.fillText(word, x, y);
+              x += ctx.measureText(word + " ").width;
+              idx++;
+            }
+            y += 50;
+          }
+
+          analyser.getByteFrequencyData(freq);
+          var bw = 1152 / freq.length;
+          for (var bi = 0; bi < freq.length; bi++) {
+            var bh = (freq[bi] / 255) * 90 + 2;
+            ctx.fillStyle = "rgba(249,254,46,0.9)";
+            ctx.fillRect(64 + bi * bw, 660 - bh, bw - 3, bh);
+          }
+          ctx.fillStyle = "#f9fe2e";
+          ctx.fillRect(0, 717, 1280 * progress, 3);
+
+          requestAnimationFrame(draw);
+        }
+
+        return new Promise(function (resolve, reject) {
+          rec.onstop = function () {
+            running = false;
+            canvas.remove();
+            try { actx.close(); } catch (e3) {}
+            var blob = new Blob(chunks, { type: mime });
+            if (!blob.size) { reject(new Error("Recording came out empty.")); return; }
+            showTeaser(URL.createObjectURL(blob), ext);
+            resolve();
+          };
+          rec.onerror = function (e4) { running = false; reject(e4.error || new Error("Recorder failed.")); };
+          source.onended = function () { setTimeout(function () { if (rec.state !== "inactive") rec.stop(); }, 450); };
+          rec.start(250);
+          source.start();
+          requestAnimationFrame(draw);
+        });
+      }
+
+      var MODAL_VIDEO_URL = "https://johnhopper0123--caden-video-api.modal.run/video";
+
+      function blobToB64(blob) {
+        return new Promise(function (resolve, reject) {
+          var fr = new FileReader();
+          fr.onload = function () { resolve(String(fr.result).split(",")[1]); };
+          fr.onerror = reject;
+          fr.readAsDataURL(blob);
+        });
+      }
+
+      function myVoiceId() {
+        // A voice cloned right here (localStorage) wins; otherwise the voice
+        // pinned to the portal profile on /portal/connections.
+        try { return localStorage.getItem("cadenVoiceId") || auto.voiceId || ""; } catch (e) { return auto.voiceId || ""; }
+      }
+
+      // Flaky wifi survives: retry any fetch a few times before giving up.
+      async function fetchRetry(url, opts) {
+        for (var attempt = 0; attempt < 4; attempt++) {
+          try {
+            return await fetch(url, opts);
+          } catch (netErr) {
+            if (attempt === 3) throw netErr;
+            statusLine.textContent = "CONNECTION BLIP. RETRYING...";
+            await new Promise(function (ok) { setTimeout(ok, 3000); });
+          }
+        }
+      }
+
+      // Uploaded photo, downscaled on a canvas so the request stays small.
+      function photoToB64() {
+        return new Promise(function (resolve) {
+          var f = document.getElementById("photo").files[0];
+          if (!f) { resolve(""); return; }
+          var img = new Image();
+          img.onload = function () {
+            var scale = Math.min(1, 1280 / Math.max(img.width, img.height));
+            var c = document.createElement("canvas");
+            c.width = Math.round(img.width * scale);
+            c.height = Math.round(img.height * scale);
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(img.src);
+            resolve(c.toDataURL("image/jpeg", 0.92).split(",")[1]);
+          };
+          img.onerror = function () { resolve(""); };
+          img.src = URL.createObjectURL(f);
+        });
+      }
+
+      // Founder cameo: uploaded photo (or Linkup search), a scene prompt
+      // written from the update by the summarizer LLM, the founder's cloned
+      // voice, and Wan 2.2 on a Modal H200. ffmpeg muxes the voice.
+      async function renderCameoOnModal(text) {
+        var photoB64 = await photoToB64();
+        var found = { imageUrls: [] };
+        if (!photoB64) {
+          statusLine.textContent = "FINDING YOUR PHOTO ON LINKEDIN AND GOOGLE...";
+          var fr = await fetchRetry("/api/founder-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query: document.getElementById("founder").value || auto.founder,
+              repo: document.getElementById("repo").value,
+            }),
+          });
+          if (!fr.ok) throw new Error("No photo found. Upload one or add your name.");
+          found = await fr.json();
+        }
+
+        statusLine.textContent = "DIRECTING THE SCENE FROM YOUR UPDATE...";
+        var scenePrompt = "";
+        var ugcScript = "";
+        try {
+          var sr = await fetchRetry("/api/scene", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text }),
+          });
+          if (sr.ok) {
+            var sj = await sr.json();
+            scenePrompt = sj.prompt || "";
+            ugcScript = sj.script || "";
+          }
+        } catch (eScene) {}
+
+        statusLine.textContent = "RECORDING THE VOICEOVER" + (myVoiceId() ? " IN YOUR VOICE..." : "...");
+        // The UGC script (casual, first person, written for talking to a
+        // phone camera) beats reading the post out loud. Casual delivery too.
+        var script = ugcScript || teaserScript(text);
+        var vr = await fetchRetry("/api/voice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: script, voiceId: myVoiceId(), casual: Boolean(ugcScript) }),
+        });
+        if (!vr.ok) {
+          var e1 = {};
+          try { e1 = await vr.json(); } catch (e2) {}
+          throw new Error(e1.error || "Voiceover failed (" + vr.status + ")");
+        }
+        var audioB64 = await blobToB64(await vr.blob());
+
+        // First choice: the elevenlabs-i2v renderer. Authentic founder scene
+        // with a polished professional finish, then the cloned voice muxed in.
+        try {
+          var i2vPrompt = ((scenePrompt || "") +
+            " Smooth confident motion, crisp focus, high production value, no readable text or logos.")
+            .slice(0, 500);
+          statusLine.textContent = "SUBMITTING TO THE ELEVENLABS I2V RENDERER...";
+          var jr = await fetchRetry("/api/i2v", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image_b64: photoB64,
+              image_urls: found.imageUrls,
+              prompt: i2vPrompt,
+            }),
+          });
+          if (!jr.ok) throw new Error("i2v submit " + jr.status);
+          var jobId = (await jr.json()).id;
+          var i2vT0 = Date.now();
+          var outputUrl = null;
+          var sawProcessing = false;
+          while (Date.now() - i2vT0 < 480000) {
+            await new Promise(function (ok) { setTimeout(ok, 5000); });
+            var pr2;
+            try { pr2 = await fetchRetry("/api/i2v?id=" + encodeURIComponent(jobId)); } catch (eNet) { continue; }
+            if (!pr2.ok) continue;
+            var js = await pr2.json();
+            if (js.status === "processing") sawProcessing = true;
+            if (js.status === "done" && js.outputUrl) { outputUrl = js.outputUrl; break; }
+            if (js.status === "failed") throw new Error(js.error || "i2v render failed");
+            // No render worker attached? The job never leaves "queued". Bail to
+            // the H200 after 90s instead of waiting out the full window.
+            if (!sawProcessing && Date.now() - i2vT0 > 90000) throw new Error("no i2v worker");
+            var secs2 = Math.round((Date.now() - i2vT0) / 1000);
+            statusLine.textContent = "ELEVENLABS I2V " + (sawProcessing ? "RENDERING" : "QUEUED") +
+              (js.position ? ", SPOT " + js.position : "") + "... " + secs2 + "S IN.";
+          }
+          if (!outputUrl) throw new Error("i2v timed out");
+          statusLine.textContent = "LAYERING YOUR VOICE OVER THE RENDER...";
+          var mr2 = await fetchRetry("/api/i2v", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mux: true, video_url: outputUrl, audio_b64: audioB64 }),
+          });
+          if (!mr2.ok) throw new Error("voice mux " + mr2.status);
+          showTeaser(URL.createObjectURL(await mr2.blob()), "mp4");
+          return;
+        } catch (eI2v) {
+          statusLine.textContent = "I2V PATH UNAVAILABLE (" + (eI2v.message || "").toUpperCase().slice(0, 40) + "). USING THE H200 INSTEAD...";
+        }
+
+        statusLine.textContent = "ANIMATING YOUR PHOTO ON A MODAL H200. ABOUT TWO MINUTES, WORTH IT.";
+        var mr = await fetchRetry(MODAL_VIDEO_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_b64: photoB64, image_urls: found.imageUrls, prompt: scenePrompt, audio_b64: audioB64 }),
+        });
+        if (!mr.ok) {
+          var e3 = {};
+          try { e3 = await mr.json(); } catch (e4) {}
+          throw new Error((e3.detail || "GPU submit failed (" + mr.status + ")").toString());
+        }
+        var callId = (await mr.json()).call_id;
+        var resultUrl = MODAL_VIDEO_URL.replace(/\/video$/, "/result/") + callId;
+        var startedAt = Date.now();
+        while (true) {
+          if (Date.now() - startedAt > 600000) throw new Error("GPU render timed out.");
+          await new Promise(function (ok) { setTimeout(ok, 5000); });
+          var pr;
+          try {
+            pr = await fetchRetry(resultUrl);
+          } catch (netErr) {
+            statusLine.textContent = "CONNECTION BLIP, STILL RENDERING. RETRYING...";
+            continue;
+          }
+          if (pr.status === 202) {
+            var secs = Math.round((Date.now() - startedAt) / 1000);
+            statusLine.textContent = "ANIMATING YOUR PHOTO ON A MODAL H200... " + secs + "S IN.";
+            continue;
+          }
+          if (!pr.ok) {
+            var e5 = {};
+            try { e5 = await pr.json(); } catch (e6) {}
+            throw new Error((e5.detail || "GPU render failed (" + pr.status + ")").toString());
+          }
+          showTeaser(URL.createObjectURL(await pr.blob()), "mp4");
+          break;
+        }
+      }
+
+      var cloneBtn = document.getElementById("cloneBtn");
+      var voiceState = document.getElementById("voiceState");
+      if (myVoiceId()) voiceState.textContent = "VOICE READY ( " + myVoiceId().slice(0, 6) + "... )";
+
+      // Record the voice sample straight from the mic.
+      var recBtn = document.getElementById("recBtn");
+      var recState = { rec: null, chunks: [], blob: null, timer: null, t0: 0, stream: null };
+      recBtn.addEventListener("click", async function () {
+        if (recState.rec && recState.rec.state === "recording") {
+          recState.rec.stop();
+          return;
+        }
+        var stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (eMic) {
+          voiceState.textContent = "MIC BLOCKED. ALLOW MICROPHONE ACCESS OR UPLOAD A FILE.";
+          return;
+        }
+        recState.stream = stream;
+        recState.chunks = [];
+        recState.rec = new MediaRecorder(stream);
+        recState.rec.ondataavailable = function (e) { if (e.data.size) recState.chunks.push(e.data); };
+        recState.rec.onstop = function () {
+          clearInterval(recState.timer);
+          recState.stream.getTracks().forEach(function (t) { t.stop(); });
+          var secs = Math.round((Date.now() - recState.t0) / 1000);
+          recBtn.textContent = "Record";
+          if (secs < 5) {
+            recState.blob = null;
+            voiceState.textContent = "TOO SHORT ( " + secs + "S ). ELEVENLABS NEEDS AT LEAST 5, IDEALLY 30 SECONDS.";
+            return;
+          }
+          recState.blob = new Blob(recState.chunks, { type: recState.rec.mimeType || "audio/webm" });
+          voiceState.textContent = "SAMPLE RECORDED ( " + secs + "S ). NOW HIT CLONE.";
+        };
+        recState.t0 = Date.now();
+        recState.rec.start(250);
+        voiceState.textContent = "RECORDING. READ A FEW SENTENCES NATURALLY, THEN HIT STOP.";
+        recState.timer = setInterval(function () {
+          var secs = Math.round((Date.now() - recState.t0) / 1000);
+          recBtn.textContent = "Stop " + secs + "s";
+          if (secs >= 60 && recState.rec.state === "recording") recState.rec.stop();
+        }, 500);
+      });
+
+      cloneBtn.addEventListener("click", async function () {
+        var f = recState.blob || document.getElementById("voiceSample").files[0];
+        if (!f) { voiceState.textContent = "RECORD OR PICK AN AUDIO FILE OF YOUR OWN VOICE FIRST."; return; }
+        cloneBtn.disabled = true;
+        cloneBtn.textContent = "Cloning...";
+        try {
+          var b64 = await blobToB64(f);
+          var r = await fetch("/api/clone-voice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ audio_b64: b64, mime: f.type || "audio/webm" }),
+          });
+          var d = await r.json();
+          if (!r.ok) throw new Error(d.error || "Clone failed (" + r.status + ")");
+          try { localStorage.setItem("cadenVoiceId", d.voiceId); } catch (eLs) {}
+          voiceState.textContent = "VOICE READY ( " + d.voiceId.slice(0, 6) + "... ). LISTEN AND MAKE VIDEO NOW USE IT.";
+        } catch (eClone) {
+          voiceState.textContent = "CLONE: " + (eClone.message || "FAILED").toUpperCase();
+        } finally {
+          cloneBtn.disabled = false;
+          cloneBtn.textContent = "Clone";
+        }
+      });
+
+      // Direct publish: two clicks (arm, then confirm) so nothing goes
+      // public by accident. Uses the portal session cookie, same origin.
+      var liBtn = document.getElementById("liBtn");
+      var liArmed = false;
+      liBtn.addEventListener("click", async function () {
+        var full = body("posts").textContent.trim();
+        if (!full) { statusLine.textContent = "RUN THE AGENTS FIRST."; return; }
+        var m = full.split(/X THREAD/i)[0].replace(/^\s*LINKEDIN POST\s*/i, "").trim();
+        if (!m) { statusLine.textContent = "NO LINKEDIN POST IN THE PANEL."; return; }
+        if (!liArmed) {
+          liArmed = true;
+          liBtn.textContent = "Confirm post?";
+          statusLine.textContent = "THIS PUBLISHES TO YOUR REAL LINKEDIN FEED. CLICK AGAIN TO CONFIRM.";
+          setTimeout(function () { liArmed = false; if (liBtn.textContent === "Confirm post?") liBtn.textContent = "Post to LinkedIn"; }, 6000);
+          return;
+        }
+        liArmed = false;
+        liBtn.disabled = true;
+        liBtn.textContent = "Posting...";
+        try {
+          var r = await fetchRetry("/portal/api/publish/linkedin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: m }),
+          });
+          var d = {};
+          try { d = await r.json(); } catch (e2) {}
+          if (!r.ok) throw new Error(d.error || "Publish failed (" + r.status + ")");
+          liBtn.textContent = "Posted ✓";
+          statusLine.textContent = "LIVE ON LINKEDIN" + (d.name ? " AS " + d.name.toUpperCase() : "") + ". THE LOOP IS CLOSED.";
+        } catch (err) {
+          liBtn.disabled = false;
+          liBtn.textContent = "Post to LinkedIn";
+          statusLine.textContent = "LINKEDIN: " + (err.message || "FAILED").toUpperCase();
+          statusLine.classList.add("err");
+        } finally {
+          if (liBtn.textContent === "Posting...") { liBtn.disabled = false; liBtn.textContent = "Post to LinkedIn"; }
+        }
+      });
+
+      var videoBtn = document.getElementById("videoBtn");
+      videoBtn.addEventListener("click", async function () {
+        var text = body("posts").textContent.trim() || body("investor_update").textContent.trim();
+        if (!text) { statusLine.textContent = "RUN THE AGENTS FIRST."; return; }
+        videoBtn.disabled = true;
+        videoBtn.textContent = "Rendering...";
+        statusLine.classList.remove("err");
+        try {
+          await renderCameoOnModal(text);
+          statusLine.textContent = "TEASER READY. DOWNLOAD IT AND POST IT WITH THE UPDATE.";
+        } catch (err2) {
+          statusLine.textContent = "GPU PATH FAILED (" + (err2.message || "").toUpperCase().slice(0, 80) + "). RENDERING IN THE BROWSER INSTEAD.";
+          try {
+            await renderTeaserInBrowser(text);
+            statusLine.textContent = "TEASER READY. DOWNLOAD IT AND POST IT WITH THE UPDATE.";
+          } catch (err3) {
+            statusLine.textContent = "VIDEO: " + (err3.message || "FAILED").toUpperCase();
+            statusLine.classList.add("err");
+          }
+        } finally {
+          videoBtn.disabled = false;
+          videoBtn.textContent = "Make video";
+        }
+      });
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        btn.disabled = true;
+        statusLine.textContent = "STARTING THE PIPELINE...";
+        statusLine.classList.remove("err");
+        rail.style.display = "flex";
+        rail.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("run-state", "done"); });
+        document.querySelectorAll(".panel").forEach(function (p) {
+          p.classList.remove("visible");
+          p.querySelector(".panel-body").textContent = "";
+        });
+
+        try {
+          var resp = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              repo: document.getElementById("repo").value,
+              from: document.getElementById("from").value,
+              to: document.getElementById("to").value,
+              metrics: document.getElementById("metrics").value,
+              founder: document.getElementById("founder").value || auto.founder,
+            }),
+          });
+          if (!resp.ok || !resp.body) throw new Error("Request failed (" + resp.status + ")");
+
+          var reader = resp.body.getReader();
+          var decoder = new TextDecoder();
+          var buffer = "";
+          while (true) {
+            var chunk = await reader.read();
+            if (chunk.done) break;
+            buffer += decoder.decode(chunk.value, { stream: true });
+            var parts = buffer.split("\n\n");
+            buffer = parts.pop();
+            for (var i = 0; i < parts.length; i++) {
+              var line = parts[i].trim();
+              if (line.indexOf("data: ") === 0) {
+                try { handleEvent(JSON.parse(line.slice(6))); } catch (err) {}
+              }
+            }
+          }
+        } catch (err) {
+          statusLine.textContent = "ERROR: " + (err.message || "SOMETHING BROKE").toUpperCase();
+          statusLine.classList.add("err");
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
